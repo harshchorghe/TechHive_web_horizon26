@@ -11,6 +11,12 @@ export default function RoleSelector({
   onContinue: () => void;
 }) {
   const roleEntries = Object.entries(USER_ROLE_META) as Array<[UserRole, (typeof USER_ROLE_META)[UserRole]]>;
+  const roleHighlights: Record<UserRole, string[]> = {
+    beginner: ["Guided tips", "Simplified panels", "Step-by-step focus"],
+    "crm-expert": ["Advanced workflows", "Cross-module controls", "Execution speed"],
+    analytics: ["Chart-priority dashboard", "Trend intelligence", "Lead decision view"],
+    "data-analytics": ["Model diagnostics", "Forecast confidence", "Deep telemetry"],
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-6 md:p-10">
@@ -47,6 +53,13 @@ export default function RoleSelector({
                 </div>
                 <p className="text-white/70 text-sm mb-2">{meta.description}</p>
                 <p className="text-white/45 text-xs leading-relaxed">{meta.details}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {roleHighlights[role].map((item) => (
+                    <span key={item} className="text-[10px] uppercase tracking-[0.12em] rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-white/70">
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </button>
             );
           })}

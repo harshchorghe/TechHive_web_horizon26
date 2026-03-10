@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { TrendingUp, ShoppingCart, DollarSign, BarChart2 } from "lucide-react";
+import { TrendingUp, ShoppingCart, IndianRupee, BarChart2 } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 export default function SalesModule({ isWarRoom, rawState }: any) {
@@ -23,10 +23,10 @@ export default function SalesModule({ isWarRoom, rawState }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <SalesStat title="Hourly Revenue" value={`$${Math.round(sales?.revenue_per_hour ?? 0)}`} trend={`${rawState?.stress_score ?? 0} stress`} icon={<TrendingUp />} />
+        <SalesStat title="Hourly Revenue" value={`₹${Math.round(sales?.revenue_per_hour ?? 0)}`} trend={`${rawState?.stress_score ?? 0} stress`} icon={<TrendingUp />} />
         <SalesStat title="Conversion" value={`${(sales?.conversion_rate ?? 0).toFixed(2)}%`} trend={`${sales?.orders_per_hour ?? 0} orders/h`} icon={<ShoppingCart />} />
         <SalesStat title="Refund Rate" value={`${(sales?.refund_rate ?? 0).toFixed(2)}%`} trend={`${support?.ticket_volume_per_hour ?? 0} tickets/h`} icon={<BarChart2 />} isGood={true} />
-        <SalesStat title="Avg Ticket" value={`$${(sales?.avg_order_value ?? 0).toFixed(2)}`} trend={`$${Math.round(sales?.cash_reserve ?? 0)} cash`} icon={<DollarSign />} />
+        <SalesStat title="Avg Ticket" value={`₹${(sales?.avg_order_value ?? 0).toFixed(2)}`} trend={`₹${Math.round(sales?.cash_reserve ?? 0)} cash`} icon={<IndianRupee />} />
       </div>
 
       <div className="grid grid-cols-12 gap-6">
