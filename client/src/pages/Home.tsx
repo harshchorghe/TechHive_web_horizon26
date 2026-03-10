@@ -7,21 +7,23 @@ import ActionROIHistory from "@/components/ActionROIHistory";
 import { useState } from "react";
 import { USER_ROLE_META, type UserRole } from "@/types/roles";
 
-export default function Home({ role, userRole, data, events, isWarRoom, rawState, onExitEmergency }: any) {
+export default function Home({ role, userRole, data, events, isWarRoom, rawState, onExitEmergency, onEmergencyTaskApproved }: any) {
   const [actionLogs, setActionLogs] = useState<any[]>([]);
   const isBeginner = userRole === "beginner";
   const roleMeta = USER_ROLE_META[userRole as UserRole];
 
   const handleApprove = (issue: any) => {
+    const stressReduced = 12;
     const newLog = {
       id: Math.random().toString(36).substr(2, 9),
       title: issue.title,
       timestamp: new Date().toLocaleTimeString(),
       impact: "Crisis Averted",
       roi: (Math.random() * 500 + 100).toFixed(0),
-      stressReduced: Math.floor(Math.random() * 10 + 5)
+      stressReduced,
     };
     setActionLogs(prev => [newLog, ...prev]);
+    onEmergencyTaskApproved?.(stressReduced);
   };
 
   return (

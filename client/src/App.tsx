@@ -46,6 +46,7 @@ function AppContent() {
   const [isWarRoom, setIsWarRoom] = useState(false);
   const [warRoomDismissed, setWarRoomDismissed] = useState(false);
   const [simulationValue, setSimulationValue] = useState(1);
+  const [stressMitigation, setStressMitigation] = useState(0);
   const { playWarRoom } = useOpsPulseSounds();
 
   const allowedPaths = userRole ? ROLE_ALLOWED_PATHS[userRole] : [];
@@ -121,6 +122,10 @@ function AppContent() {
     handleWarRoomToggle(false);
   };
 
+  const handleEmergencyTaskApproval = (stressReduced: number) => {
+    setStressMitigation((prev) => Math.min(60, prev + Math.max(0, stressReduced)));
+  };
+
   useEffect(() => {
     void updateRole(role);
   }, [role, updateRole]);
@@ -147,13 +152,14 @@ function AppContent() {
       };
     }
     const offset = (simulationValue - 1) * 15;
+    const effectiveOffset = Math.max(0, offset - stressMitigation);
     const chartData = normalized.chartData.map((p, i) => {
       // Apply offset to the most recent and future (predicted) points
       if (i >= 15) {
         return {
           ...p,
-          health: Math.max(0, p.health - offset),
-          predicted: p.predicted !== null ? Math.max(0, p.predicted - offset) : null
+          health: Math.max(0, p.health - effectiveOffset),
+          predicted: p.predicted !== null ? Math.max(0, p.predicted - effectiveOffset) : null
         };
       }
       return p;
@@ -161,10 +167,10 @@ function AppContent() {
 
     return {
       ...normalized,
-      stressScore: Math.min(100, normalized.stressScore + offset),
+      stressScore: Math.max(0, Math.min(100, normalized.stressScore + offset - stressMitigation)),
       chartData
     };
-  }, [normalized, simulationValue]);
+  }, [normalized, simulationValue, stressMitigation]);
 
   const events = normalized?.events ?? [];
 
@@ -246,6 +252,7 @@ function AppContent() {
                   isWarRoom={isWarRoom}
                   rawState={state}
                   onExitEmergency={handleEmergencyExit}
+                  onEmergencyTaskApproved={handleEmergencyTaskApproval}
                 />
               </Route>
             )}
