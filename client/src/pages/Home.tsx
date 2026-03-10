@@ -7,7 +7,7 @@ import ActionROIHistory from "@/components/ActionROIHistory";
 import { useState } from "react";
 import { USER_ROLE_META, type UserRole } from "@/types/roles";
 
-export default function Home({ role, userRole, data, events, isWarRoom, rawState }: any) {
+export default function Home({ role, userRole, data, events, isWarRoom, rawState, onExitEmergency }: any) {
   const [actionLogs, setActionLogs] = useState<any[]>([]);
   const isBeginner = userRole === "beginner";
   const roleMeta = USER_ROLE_META[userRole as UserRole];
@@ -73,6 +73,7 @@ export default function Home({ role, userRole, data, events, isWarRoom, rawState
           data={data}
           playbooks={rawState?.recommendations?.playbooks ?? []}
           onApprove={handleApprove}
+          onExitEmergency={onExitEmergency}
         />
       )}
     </div>

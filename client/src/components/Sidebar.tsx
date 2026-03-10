@@ -29,6 +29,7 @@ export default function Sidebar({
   isWarRoom,
   simValue,
   setSimValue,
+  onExitWarRoom,
   userRole,
   setUserRole,
   onOpenRoleSetup,
@@ -36,6 +37,7 @@ export default function Sidebar({
   isWarRoom: boolean;
   simValue: number;
   setSimValue: (v: number) => void;
+  onExitWarRoom: () => void;
   userRole: UserRole;
   setUserRole: (role: UserRole) => void;
   onOpenRoleSetup: () => void;
@@ -75,6 +77,12 @@ export default function Sidebar({
         <div className="hidden md:block p-3 border-t border-red-500/10">
           <p className="text-[9px] uppercase tracking-[0.2em] text-red-400/70">Role Context</p>
           <p className="text-xs text-red-100/70 mt-1">{roleMeta.shortLabel}</p>
+          <button
+            onClick={onExitWarRoom}
+            className="mt-3 w-full rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/20"
+          >
+            Resume Console
+          </button>
         </div>
       </aside>
     );
