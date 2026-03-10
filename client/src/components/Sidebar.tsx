@@ -13,10 +13,10 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { ROLE_ALLOWED_PATHS, USER_ROLE_META, type UserRole } from "@/types/roles";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Executive Summary", path: "/" },
+  { icon: LayoutDashboard, label: "Executive Summary", path: "/dashboard" },
   { icon: TrendingUp, label: "Sales Intelligence", path: "/sales" },
   { icon: Package, label: "Inventory & Logistics", path: "/inventory" },
   { icon: Headphones, label: "Customer Support", path: "/support" },
@@ -28,13 +28,22 @@ const menuItems = [
 export default function Sidebar({
   isWarRoom,
   simValue,
-  setSimValue
+  setSimValue,
+  userRole,
+  setUserRole,
+  onOpenRoleSetup,
 }: {
   isWarRoom: boolean;
   simValue: number;
   setSimValue: (v: number) => void;
+  userRole: UserRole;
+  setUserRole: (role: UserRole) => void;
+  onOpenRoleSetup: () => void;
 }) {
   const [location] = useLocation();
+  const allowedPaths = ROLE_ALLOWED_PATHS[userRole];
+  const visibleMenuItems = menuItems.filter((item) => allowedPaths.includes(item.path));
+  const roleMeta = USER_ROLE_META[userRole];
 
   if (isWarRoom) {
     return (
@@ -63,6 +72,10 @@ export default function Sidebar({
             </motion.div>
           ))}
         </div>
+        <div className="hidden md:block p-3 border-t border-red-500/10">
+          <p className="text-[9px] uppercase tracking-[0.2em] text-red-400/70">Role Context</p>
+          <p className="text-xs text-red-100/70 mt-1">{roleMeta.shortLabel}</p>
+        </div>
       </aside>
     );
   }
@@ -77,7 +90,7 @@ export default function Sidebar({
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const isActive = location === item.path;
           return (
             <Link key={item.path} href={item.path}>
@@ -101,6 +114,27 @@ export default function Sidebar({
       </nav>
 
       <div className="p-4 border-t border-white/5 flex flex-col gap-4">
+        <div className="hidden md:block p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Workspace Role</div>
+          <select
+            value={userRole}
+            onChange={(e) => setUserRole(e.target.value as UserRole)}
+            className="w-full rounded-lg border border-white/15 bg-black/40 px-2 py-2 text-xs text-white outline-none"
+          >
+            <option value="beginner">Beginner Operator</option>
+            <option value="crm-expert">CRM Expert</option>
+            <option value="analytics">Analytics Lead</option>
+            <option value="data-analytics">Data Analytics Specialist</option>
+          </select>
+          <p className="text-[10px] text-white/45 mt-2 leading-relaxed">{roleMeta.description}</p>
+          <button
+            onClick={onOpenRoleSetup}
+            className="mt-3 w-full rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/15"
+          >
+            Open Role Selector
+          </button>
+        </div>
+
         <div className="hidden md:block p-4 rounded-2xl bg-primary/5 border border-primary/10">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-3 h-3 text-primary animate-pulse" />
