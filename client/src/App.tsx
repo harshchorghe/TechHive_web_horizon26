@@ -10,18 +10,26 @@ import InventoryModule from "@/pages/InventoryModule";
 import SupportModule from "@/pages/SupportModule";
 import PredictiveReports from "@/pages/PredictiveReports";
 import Integrations from "@/pages/Integrations";
+import AiAnalytics from "@/pages/AiAnalytics";
+import Landing from "@/pages/Landing";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { useOpsPulseLive } from "@/hooks/useOpsPulseLive";
 import { useOpsPulseSounds } from "@/hooks/useOpsPulseSounds";
 
 function AppContent() {
+  const [location] = useLocation();
   const [role, setRole] = useState<"Strategic" | "Tactical">("Strategic");
   const { state, normalized, loading, connected, updateRole } = useOpsPulseLive();
   const [isWarRoom, setIsWarRoom] = useState(false);
   const [simulationValue, setSimulationValue] = useState(1);
   const { playWarRoom } = useOpsPulseSounds();
+
+  if (location === "/") {
+    return <Landing />;
+  }
 
   useEffect(() => {
     if (normalized) {
@@ -98,7 +106,7 @@ function AppContent() {
             </div>
           )}
           <Switch>
-            <Route path="/">
+            <Route path="/dashboard">
               <Home role={role} data={data} events={events} isWarRoom={isWarRoom} rawState={state} />
             </Route>
             <Route path="/sales">
@@ -115,6 +123,9 @@ function AppContent() {
             </Route>
             <Route path="/integrations">
               <Integrations />
+            </Route>
+            <Route path="/ai-analytics">
+              <AiAnalytics isWarRoom={isWarRoom} rawState={state} data={data} />
             </Route>
             <Route component={NotFound} />
           </Switch>

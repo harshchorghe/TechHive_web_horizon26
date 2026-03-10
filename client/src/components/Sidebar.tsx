@@ -8,7 +8,8 @@ import {
   ShieldAlert,
   ChevronRight,
   Blocks,
-  Zap
+  Zap,
+  BrainCircuit
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Slider } from "@/components/ui/slider";
@@ -20,6 +21,7 @@ const menuItems = [
   { icon: Package, label: "Inventory & Logistics", path: "/inventory" },
   { icon: Headphones, label: "Customer Support", path: "/support" },
   { icon: BarChart3, label: "Predictive Reports", path: "/reports" },
+  { icon: BrainCircuit, label: "AI Analytics", path: "/ai-analytics" },
   { icon: Blocks, label: "Ecosystem Hub", path: "/integrations" },
 ];
 
