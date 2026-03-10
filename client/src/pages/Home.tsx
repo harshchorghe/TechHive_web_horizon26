@@ -4,6 +4,7 @@ import PredictiveStressEngine from "@/components/PredictiveStressEngine";
 import RootCauseFeed from "@/components/RootCauseFeed";
 import DecisionRecommendation from "@/components/DecisionRecommendation";
 import { AlertTriangle, Sparkles } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Home({ role, data, events, isWarRoom, rawState }: any) {
   const topRisk = rawState?.alerts?.[0];
@@ -32,9 +33,11 @@ export default function Home({ role, data, events, isWarRoom, rawState }: any) {
               </p>
             </div>
           </div>
-          <button className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all">
-            Full Analysis →
-          </button>
+          <Link href="/reports">
+            <button className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold transition-all">
+              Full Analysis →
+            </button>
+          </Link>
         </div>
       </motion.div>
 

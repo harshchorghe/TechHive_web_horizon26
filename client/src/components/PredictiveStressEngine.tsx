@@ -8,6 +8,31 @@ export default function PredictiveStressEngine({ data, isWarRoom, predictions }:
     () => predictions?.find((p: any) => p.horizon_hours === horizon),
     [predictions, horizon],
   );
+  const displayData = useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
+    }
+
+    const nowIndex = Math.min(20, data.length - 1);
+    const nowHealth = Number(data[nowIndex]?.health ?? 0);
+    const target = Number(selected?.predicted_stress ?? nowHealth);
+    const projectionSteps = Math.max(1, Math.round((horizon / 24) * 9));
+    const endIndex = Math.min(data.length - 1, nowIndex + projectionSteps);
+
+    return data.map((point: any, index: number) => {
+      if (index < nowIndex || index > endIndex) {
+        return { ...point, predicted: null };
+      }
+
+      const progress = endIndex === nowIndex ? 1 : (index - nowIndex) / (endIndex - nowIndex);
+      const predicted = nowHealth + (target - nowHealth) * progress;
+
+      return {
+        ...point,
+        predicted: Math.max(0, Math.min(100, Number(predicted.toFixed(2)))),
+      };
+    });
+  }, [data, selected, horizon]);
 
   return (
     <div className={`glass-panel p-6 rounded-2xl flex-1 min-h-[450px] flex flex-col relative overflow-hidden transition-colors duration-1000 ${isWarRoom ? 'border-red-500/30 bg-red-950/20 shadow-[0_0_50px_rgba(239,68,68,0.05)]' : ''}`}>
@@ -55,7 +80,7 @@ export default function PredictiveStressEngine({ data, isWarRoom, predictions }:
 
       <div className="flex-1 relative z-10 -ml-4">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={displayData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorHealth" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
@@ -93,7 +118,7 @@ export default function PredictiveStressEngine({ data, isWarRoom, predictions }:
               labelStyle={{ fontFamily: 'Inter', fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}
             />
             <ReferenceLine 
-              x={data[20]?.time} 
+              x={displayData[20]?.time} 
               stroke={isWarRoom ? "#ef4444" : "rgba(255,255,255,0.3)"} 
               strokeDasharray="4 4" 
               label={{ position: 'top', value: 'NOW', fill: isWarRoom ? '#ef4444' : 'rgba(255,255,255,0.5)', fontSize: 10, fontFamily: 'JetBrains Mono' }} 

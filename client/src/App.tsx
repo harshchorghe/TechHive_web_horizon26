@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import SalesModule from "@/pages/SalesModule";
 import InventoryModule from "@/pages/InventoryModule";
 import SupportModule from "@/pages/SupportModule";
+import PredictiveReports from "@/pages/PredictiveReports";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useEffect, useMemo, useState } from "react";
@@ -84,6 +85,9 @@ function AppContent() {
             </Route>
             <Route path="/support">
               <SupportModule isWarRoom={isWarRoom} rawState={state} />
+            </Route>
+            <Route path="/reports">
+              <PredictiveReports isWarRoom={isWarRoom} rawState={state} role={role} />
             </Route>
             <Route component={NotFound} />
           </Switch>
