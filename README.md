@@ -32,6 +32,11 @@ From Fragmented Data to Decisive Action.
 - Root cause mapping links across inventory, support, and sales
 - One-click recommendation playbooks with approval endpoint
 - Home "Full Analysis" CTA wired to Predictive Reports
+- **Executive Natural Language Briefing**: AI CEO morning brief parsing real-time metrics into readable directives.
+- **Ecosystem Integration Hub**: Simulated bi-directional syncs with Slack, Shopify, Stripe, and Zendesk with live toggles.
+- **Closed-Loop Action Engine**: Real-time tracker for playbooks to register ROI and impact metrics immediately after action.
+- **Scenario Simulator**: A sandbox "What-If" slider capable of multiplying current load organically to preview stress reactions natively in UI.
+- **Tactical Polish Layer**: High-end CRT overlays, scanning Lottie vectors, and conditional auditory pings active specifically within War Room states.
 
 ## Backend API
 
