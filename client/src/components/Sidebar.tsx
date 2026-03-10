@@ -1,0 +1,96 @@
+import { motion } from "framer-motion";
+import { 
+  LayoutDashboard, 
+  TrendingUp, 
+  Package, 
+  Headphones, 
+  BarChart3, 
+  ShieldAlert,
+  ChevronRight
+} from "lucide-react";
+import { Link, useLocation } from "wouter";
+
+const menuItems = [
+  { icon: LayoutDashboard, label: "Executive Summary", path: "/" },
+  { icon: TrendingUp, label: "Sales Intelligence", path: "/sales" },
+  { icon: Package, label: "Inventory & Logistics", path: "/inventory" },
+  { icon: Headphones, label: "Customer Support", path: "/support" },
+  { icon: BarChart3, label: "Predictive Reports", path: "/reports" },
+];
+
+export default function Sidebar({ isWarRoom }: { isWarRoom: boolean }) {
+  const [location] = useLocation();
+
+  if (isWarRoom) {
+    return (
+      <aside className="w-16 md:w-64 bg-[#050505] border-r border-red-500/20 flex flex-col transition-all duration-500 z-50">
+        <div className="p-4 border-b border-red-500/10 flex items-center justify-center md:justify-start gap-3">
+          <ShieldAlert className="w-6 h-6 text-red-500 animate-pulse" />
+          <span className="hidden md:block font-black text-red-500 text-xs tracking-[0.2em] uppercase">Emergency Protocol</span>
+        </div>
+        <div className="flex-1 p-4 flex flex-col gap-4">
+          <div className="hidden md:block text-[10px] font-bold text-red-500/50 uppercase tracking-widest mb-2">Checklist</div>
+          {[
+            "Verify Logistics",
+            "Approve Reroute",
+            "Notify Stakeholders",
+            "Engage Support"
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-center gap-3 p-2 rounded-lg bg-red-500/5 border border-red-500/10 text-red-200/60 text-xs cursor-pointer hover:bg-red-500/10 transition-colors"
+            >
+              <div className="w-4 h-4 rounded border border-red-500/30 flex-shrink-0" />
+              <span className="hidden md:block truncate">{item}</span>
+            </motion.div>
+          ))}
+        </div>
+      </aside>
+    );
+  }
+
+  return (
+    <aside className="w-16 md:w-64 bg-[#0a0a0c] border-r border-white/5 flex flex-col transition-all duration-300 z-50">
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-sm bg-primary" />
+        </div>
+        <span className="hidden md:block font-bold text-lg tracking-tighter">OpsPulse</span>
+      </div>
+
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+        {menuItems.map((item) => {
+          const isActive = location === item.path;
+          return (
+            <Link key={item.path} href={item.path}>
+              <a className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative
+                ${isActive ? 'bg-primary/10 text-primary shadow-[inset_0_0_12px_rgba(59,130,246,0.1)]' : 'text-white/40 hover:text-white/80 hover:bg-white/5'}
+              `}>
+                <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="hidden md:block text-sm font-medium">{item.label}</span>
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-pill"
+                    className="absolute left-0 w-1 h-5 bg-primary rounded-r-full"
+                  />
+                )}
+                <ChevronRight className={`ml-auto w-4 h-4 transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+              </a>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-white/5">
+        <div className="hidden md:block p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">Support</div>
+          <p className="text-xs text-white/60 leading-relaxed">System v2.4.1<br/>All protocols active</p>
+        </div>
+      </div>
+    </aside>
+  );
+}

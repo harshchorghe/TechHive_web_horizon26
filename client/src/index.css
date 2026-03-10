@@ -41,6 +41,7 @@
   --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-scanline: scanline 5s linear infinite;
   --animate-flicker: flicker 3s linear infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 }
 
 :root {
@@ -72,41 +73,18 @@
   --chart-5: 340 75% 55%;
 }
 
-.dark {
-  --background: 240 9% 4%;
-  --foreground: 210 40% 98%;
-  --card: 240 10% 6%;
-  --card-foreground: 210 40% 98%;
-  --popover: 240 10% 6%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 100% 50%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 10% 15%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 240 10% 12%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 240 10% 15%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 240 10% 15%;
-  --input: 240 10% 15%;
-  --ring: 210 100% 50%;
-}
-
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    /* Deep matte ink background */
     background-color: #0a0a0c; 
-    /* faint, low-opacity "scanning" grid pattern */
     background-image: 
-      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
+      linear-gradient(to right, rgba(255,255,255,0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.01) 1px, transparent 1px);
+    background-size: 40px 40px;
+    font-size: 13px; /* High density default */
   }
 }
 
@@ -120,12 +98,27 @@
   20%, 22%, 24%, 55% { opacity: 0.5; }
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 .glass-panel {
-  @apply bg-background/40 backdrop-blur-md border border-white/5 shadow-lg;
+  @apply bg-background/60 backdrop-blur-xl border border-white/5 shadow-2xl;
 }
 
 .terminal-text {
   @apply font-mono tracking-tight;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
 
 /* War Room Mode Overrides */
@@ -140,8 +133,15 @@ body.war-room {
   left: 0;
   width: 100%;
   height: 200px;
-  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.1), transparent);
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.05), transparent);
   pointer-events: none;
-  z-index: 50;
+  z-index: 100;
   animation: scanline 5s linear infinite;
+}
+
+.glow-number {
+  transition: all 0.3s ease;
+}
+.glow-number:not(:empty) {
+  text-shadow: 0 0 8px currentColor;
 }
