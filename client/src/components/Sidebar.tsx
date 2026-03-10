@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Blocks,
   Zap,
-  BrainCircuit
+  BrainCircuit,
+  LogOut
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Slider } from "@/components/ui/slider";
@@ -55,6 +56,14 @@ export default function Sidebar({
         <div className="p-4 border-b border-red-500/10 flex items-center justify-center md:justify-start gap-3">
           <ShieldAlert className="w-6 h-6 text-red-500 animate-pulse" />
           <span className="hidden md:block font-black text-red-500 text-xs tracking-[0.2em] uppercase">Emergency Protocol</span>
+          <button
+            onClick={onLogout}
+            className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/5 text-white/70 hover:bg-white/10"
+            aria-label="Logout"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
         <div className="flex-1 p-4 flex flex-col gap-4">
           <div className="hidden md:block text-[10px] font-bold text-red-500/50 uppercase tracking-widest mb-2">Checklist</div>
@@ -103,6 +112,14 @@ export default function Sidebar({
           <div className="w-4 h-4 rounded-sm bg-primary" />
         </div>
         <span className="hidden md:block font-bold text-lg tracking-tighter">OpsPulse</span>
+        <button
+          onClick={onLogout}
+          className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/5 text-white/70 hover:bg-white/10"
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
