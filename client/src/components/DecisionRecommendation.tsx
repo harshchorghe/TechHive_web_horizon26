@@ -5,7 +5,7 @@ import { useOpsPulseSounds } from "@/hooks/useOpsPulseSounds";
 
 const API_BASE = import.meta.env.VITE_OPSPULSE_API_BASE || "http://localhost:8000";
 
-export default function DecisionRecommendation({ playbooks, onApprove }: any) {
+export default function DecisionRecommendation({ playbooks, onApprove, onExitEmergency }: any) {
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const { playSuccess } = useOpsPulseSounds();
 
@@ -53,6 +53,16 @@ export default function DecisionRecommendation({ playbooks, onApprove }: any) {
               <div className="text-[10px] font-bold text-red-500/40 uppercase tracking-[0.3em]">Protocol Alpha</div>
               <div className="terminal-text text-xl font-black text-red-500">CRITICAL STATE</div>
             </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+            <p className="text-xs text-white/70">Need to step out and stabilize first? Resume console controls and reduce load.</p>
+            <button
+              onClick={onExitEmergency}
+              className="rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/20"
+            >
+              Resume Console
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

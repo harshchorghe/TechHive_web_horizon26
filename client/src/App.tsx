@@ -44,6 +44,7 @@ function AppContent() {
   });
   const { state, normalized, loading, connected, updateRole } = useOpsPulseLive();
   const [isWarRoom, setIsWarRoom] = useState(false);
+  const [warRoomDismissed, setWarRoomDismissed] = useState(false);
   const [simulationValue, setSimulationValue] = useState(1);
   const { playWarRoom } = useOpsPulseSounds();
 
@@ -88,12 +89,37 @@ function AppContent() {
 
   useEffect(() => {
     if (normalized) {
-      if (normalized.isWarRoom && !isWarRoom) {
+      if (normalized.isWarRoom && !isWarRoom && !warRoomDismissed) {
         playWarRoom();
       }
-      setIsWarRoom(normalized.isWarRoom);
+
+      if (!normalized.isWarRoom && warRoomDismissed) {
+        setWarRoomDismissed(false);
+      }
+
+      if (!warRoomDismissed) {
+        setIsWarRoom(normalized.isWarRoom);
+      }
     }
-  }, [normalized, isWarRoom, playWarRoom]);
+  }, [normalized, isWarRoom, playWarRoom, warRoomDismissed]);
+
+  const handleWarRoomToggle = (nextValue: boolean) => {
+    setIsWarRoom(nextValue);
+
+    if (!nextValue && normalized?.isWarRoom) {
+      setWarRoomDismissed(true);
+      return;
+    }
+
+    if (nextValue) {
+      setWarRoomDismissed(false);
+    }
+  };
+
+  const handleEmergencyExit = () => {
+    setSimulationValue(1);
+    handleWarRoomToggle(false);
+  };
 
   useEffect(() => {
     void updateRole(role);
@@ -189,6 +215,7 @@ function AppContent() {
         isWarRoom={isWarRoom}
         simValue={simulationValue}
         setSimValue={setSimulationValue}
+        onExitWarRoom={handleEmergencyExit}
         userRole={userRole}
         setUserRole={setUserRole}
         onOpenRoleSetup={() => setLocation("/role-selector")}
@@ -199,7 +226,7 @@ function AppContent() {
           setRole={setRole}
           stressScore={data.stressScore}
           isWarRoom={isWarRoom}
-          setIsWarRoom={setIsWarRoom}
+          setIsWarRoom={handleWarRoomToggle}
           connected={connected}
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
@@ -211,7 +238,15 @@ function AppContent() {
           <Switch>
             {allowedPaths.includes("/dashboard") && (
               <Route path="/dashboard">
-                <Home role={role} userRole={userRole} data={data} events={events} isWarRoom={isWarRoom} rawState={state} />
+                <Home
+                  role={role}
+                  userRole={userRole}
+                  data={data}
+                  events={events}
+                  isWarRoom={isWarRoom}
+                  rawState={state}
+                  onExitEmergency={handleEmergencyExit}
+                />
               </Route>
             )}
             {allowedPaths.includes("/sales") && (
