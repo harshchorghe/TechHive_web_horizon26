@@ -30,6 +30,7 @@ export default function Sidebar({
   simValue,
   setSimValue,
   onExitWarRoom,
+  onLogout,
   userRole,
   setUserRole,
   onOpenRoleSetup,
@@ -38,6 +39,7 @@ export default function Sidebar({
   simValue: number;
   setSimValue: (v: number) => void;
   onExitWarRoom: () => void;
+  onLogout: () => void;
   userRole: UserRole;
   setUserRole: (role: UserRole) => void;
   onOpenRoleSetup: () => void;
@@ -82,6 +84,12 @@ export default function Sidebar({
             className="mt-3 w-full rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/20"
           >
             Resume Console
+          </button>
+          <button
+            onClick={onLogout}
+            className="mt-2 w-full rounded-lg border border-white/25 bg-white/5 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10"
+          >
+            Logout
           </button>
         </div>
       </aside>
@@ -172,6 +180,12 @@ export default function Sidebar({
         <div className="hidden md:block p-4 rounded-2xl bg-white/5 border border-white/10">
           <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">System Status</div>
           <p className="text-xs text-white/60 leading-relaxed">v4.0.0-PRO<br />Neural links optimized</p>
+          <button
+            onClick={onLogout}
+            className="mt-3 w-full rounded-lg border border-white/25 bg-white/5 px-2 py-1.5 text-[11px] font-semibold text-white/80 hover:bg-white/10"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </aside>

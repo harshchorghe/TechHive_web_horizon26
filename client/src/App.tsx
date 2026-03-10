@@ -126,6 +126,17 @@ function AppContent() {
     setStressMitigation((prev) => Math.min(60, prev + Math.max(0, stressReduced)));
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserRole(null);
+    setRole("Strategic");
+    setSimulationValue(1);
+    setStressMitigation(0);
+    setIsWarRoom(false);
+    setWarRoomDismissed(false);
+    setLocation("/");
+  };
+
   useEffect(() => {
     void updateRole(role);
   }, [role, updateRole]);
@@ -222,6 +233,7 @@ function AppContent() {
         simValue={simulationValue}
         setSimValue={setSimulationValue}
         onExitWarRoom={handleEmergencyExit}
+        onLogout={handleLogout}
         userRole={userRole}
         setUserRole={setUserRole}
         onOpenRoleSetup={() => setLocation("/role-selector")}
