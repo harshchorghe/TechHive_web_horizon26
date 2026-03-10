@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { History, TrendingDown, ShieldCheck, ArrowUpRight, DollarSign } from "lucide-react";
+import { History, TrendingDown, ShieldCheck, ArrowUpRight, IndianRupee } from "lucide-react";
 
 interface ActionLog {
     id: string;
@@ -53,7 +53,7 @@ export default function ActionROIHistory({ logs }: ActionROIHistoryProps) {
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-bold text-white/20 uppercase tracking-tighter">Savings/ROI</span>
                                     <span className="text-sm font-black text-emerald-400 flex items-center gap-0.5">
-                                        <DollarSign className="w-3 h-3" />
+                                        <IndianRupee className="w-3 h-3" />
                                         {log.roi}
                                     </span>
                                 </div>

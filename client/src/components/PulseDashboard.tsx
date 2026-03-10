@@ -1,4 +1,4 @@
-import { TrendingUp, DollarSign, Users, Package, Clock, Truck } from "lucide-react";
+import { TrendingUp, IndianRupee, Users, Package, Clock, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PulseDashboard({ role, data, isWarRoom }: any) {
@@ -6,8 +6,8 @@ export default function PulseDashboard({ role, data, isWarRoom }: any) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <ImpactCard title="Runway" value={`${data.runwayDays} Days`} icon={<TrendingUp />} trend="-2 days" isWarRoom={isWarRoom} />
-        <ImpactCard title="Net Margin" value={`${data.netMargin.toFixed(1)}%`} icon={<DollarSign />} trend="+0.5%" isWarRoom={isWarRoom} isGood={true} />
-        <ImpactCard title="Customer LTV" value={`$${data.customerLTV}`} icon={<Users />} trend="-$12" isWarRoom={isWarRoom} />
+        <ImpactCard title="Net Margin" value={`${data.netMargin.toFixed(1)}%`} icon={<IndianRupee />} trend="+0.5%" isWarRoom={isWarRoom} isGood={true} />
+        <ImpactCard title="Customer LTV" value={`₹${data.customerLTV}`} icon={<Users />} trend="-₹12" isWarRoom={isWarRoom} />
       </div>
     );
   }

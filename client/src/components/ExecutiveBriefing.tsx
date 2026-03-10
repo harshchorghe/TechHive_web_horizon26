@@ -76,7 +76,7 @@ export default function ExecutiveBriefing({ data, rawState }: ExecutiveBriefingP
         if (stress > 50) {
             story += `I've prepared a mitigation playbook for your approval to protect your ${runway}-day runway.`;
         } else {
-            story += `Operations are stable. Revenue velocity is holding at $${revenue}/hr.`;
+            story += `Operations are stable. Revenue velocity is holding at ₹${revenue}/hr.`;
         }
 
         return story;
