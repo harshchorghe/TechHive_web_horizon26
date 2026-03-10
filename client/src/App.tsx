@@ -9,21 +9,28 @@ import SalesModule from "@/pages/SalesModule";
 import InventoryModule from "@/pages/InventoryModule";
 import SupportModule from "@/pages/SupportModule";
 import PredictiveReports from "@/pages/PredictiveReports";
+import Integrations from "@/pages/Integrations";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useEffect, useMemo, useState } from "react";
 import { useOpsPulseLive } from "@/hooks/useOpsPulseLive";
+import { useOpsPulseSounds } from "@/hooks/useOpsPulseSounds";
 
 function AppContent() {
   const [role, setRole] = useState<"Strategic" | "Tactical">("Strategic");
   const { state, normalized, loading, connected, updateRole } = useOpsPulseLive();
   const [isWarRoom, setIsWarRoom] = useState(false);
+  const [simulationValue, setSimulationValue] = useState(1);
+  const { playWarRoom } = useOpsPulseSounds();
 
   useEffect(() => {
     if (normalized) {
+      if (normalized.isWarRoom && !isWarRoom) {
+        playWarRoom();
+      }
       setIsWarRoom(normalized.isWarRoom);
     }
-  }, [normalized]);
+  }, [normalized, isWarRoom, playWarRoom]);
 
   useEffect(() => {
     void updateRole(role);
@@ -50,20 +57,37 @@ function AppContent() {
         chartData: [],
       };
     }
-    return normalized;
-  }, [normalized]);
+    const offset = (simulationValue - 1) * 15;
+    const chartData = normalized.chartData.map((p, i) => {
+      // Apply offset to the most recent and future (predicted) points
+      if (i >= 15) {
+        return {
+          ...p,
+          health: Math.max(0, p.health - offset),
+          predicted: p.predicted !== null ? Math.max(0, p.predicted - offset) : null
+        };
+      }
+      return p;
+    });
+
+    return {
+      ...normalized,
+      stressScore: Math.min(100, normalized.stressScore + offset),
+      chartData
+    };
+  }, [normalized, simulationValue]);
 
   const events = normalized?.events ?? [];
 
   return (
     <div className="flex min-h-screen bg-[#0a0a0c] text-foreground">
-      <Sidebar isWarRoom={isWarRoom} />
+      <Sidebar isWarRoom={isWarRoom} simValue={simulationValue} setSimValue={setSimulationValue} />
       <div className="flex-1 flex flex-col min-w-0">
-        <Header 
-          role={role} 
-          setRole={setRole} 
+        <Header
+          role={role}
+          setRole={setRole}
           stressScore={data.stressScore}
-          isWarRoom={isWarRoom} 
+          isWarRoom={isWarRoom}
           setIsWarRoom={setIsWarRoom}
           connected={connected}
         />
@@ -88,6 +112,9 @@ function AppContent() {
             </Route>
             <Route path="/reports">
               <PredictiveReports isWarRoom={isWarRoom} rawState={state} role={role} />
+            </Route>
+            <Route path="/integrations">
+              <Integrations />
             </Route>
             <Route component={NotFound} />
           </Switch>

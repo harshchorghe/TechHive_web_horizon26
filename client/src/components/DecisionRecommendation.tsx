@@ -1,16 +1,20 @@
 import { motion } from "framer-motion";
 import { AlertOctagon, CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
+import { useOpsPulseSounds } from "@/hooks/useOpsPulseSounds";
 
 const API_BASE = import.meta.env.VITE_OPSPULSE_API_BASE || "http://localhost:8000";
 
-export default function DecisionRecommendation({ playbooks }: any) {
+export default function DecisionRecommendation({ playbooks, onApprove }: any) {
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const { playSuccess } = useOpsPulseSounds();
 
-  const approve = async (id: string) => {
-    setApprovingId(id);
+  const approve = async (issue: any) => {
+    setApprovingId(issue.id);
     try {
-      await fetch(`${API_BASE}/api/v1/playbooks/${id}/approve`, { method: "POST" });
+      await fetch(`${API_BASE}/api/v1/playbooks/${issue.id}/approve`, { method: "POST" });
+      playSuccess();
+      onApprove?.(issue);
     } finally {
       setApprovingId(null);
     }
@@ -19,13 +23,13 @@ export default function DecisionRecommendation({ playbooks }: any) {
   const activePlaybooks = playbooks.length
     ? playbooks
     : [
-        { id: "fallback-1", title: "Stockout Shield", risk: "Revenue leakage risk", action: "Restock now" },
-        { id: "fallback-2", title: "Logistics Recovery", risk: "Late fulfillment", action: "Reroute warehouse" },
-        { id: "fallback-3", title: "Support Burst", risk: "Sentiment decline", action: "Shift agents" },
-      ];
+      { id: "fallback-1", title: "Stockout Shield", risk: "Revenue leakage risk", action: "Restock now" },
+      { id: "fallback-2", title: "Logistics Recovery", risk: "Late fulfillment", action: "Reroute warehouse" },
+      { id: "fallback-3", title: "Support Burst", risk: "Sentiment decline", action: "Shift agents" },
+    ];
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 100, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 100, scale: 0.9 }}
@@ -33,7 +37,7 @@ export default function DecisionRecommendation({ playbooks }: any) {
     >
       <div className="bg-[#050505] border-2 border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.2)] rounded-3xl p-8 overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-1 bg-red-500 animate-pulse" />
-        
+
         <div className="flex flex-col gap-8 relative z-10">
           <div className="flex items-center justify-between border-b border-red-500/10 pb-6">
             <div className="flex items-center gap-4">
@@ -61,7 +65,7 @@ export default function DecisionRecommendation({ playbooks }: any) {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     disabled={approvingId === issue.id}
-                    onClick={() => approve(issue.id)}
+                    onClick={() => approve(issue)}
                     className="flex flex-col items-center justify-center py-3 bg-red-600 hover:bg-red-500 disabled:bg-red-900/50 text-white rounded-xl transition-all group"
                   >
                     <CheckCircle2 className="w-4 h-4 mb-1" />
