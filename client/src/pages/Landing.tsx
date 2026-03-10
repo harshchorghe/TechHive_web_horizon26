@@ -58,10 +58,10 @@ export default function Landing() {
                     <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Link href="/dashboard" className="hidden md:block text-sm font-medium text-white/80 hover:text-white transition-colors">
+                    <Link href="/signin" className="hidden md:block text-sm font-medium text-white/80 hover:text-white transition-colors">
                         Login
                     </Link>
-                    <Link href="/dashboard">
+                    <Link href="/signup">
                         <button className="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center gap-2">
                             Launch Platform <ArrowRight className="w-4 h-4" />
                         </button>
@@ -108,12 +108,12 @@ export default function Landing() {
                         transition={{ duration: 0.7, delay: 0.3 }}
                         className="flex flex-col sm:flex-row items-center gap-4"
                     >
-                        <Link href="/dashboard">
+                        <Link href="/signin">
                             <button className="px-8 py-4 rounded-full bg-white text-black text-lg font-bold hover:bg-white/90 transition-all flex items-center gap-3">
                                 <Activity className="w-5 h-5" /> Enter War Room
                             </button>
                         </Link>
-                        <Link href="/dashboard">
+                        <Link href="/signup">
                             <button className="px-8 py-4 rounded-full border border-white/10 bg-white/5 text-white text-lg font-bold hover:bg-white/10 transition-all flex items-center gap-3 backdrop-blur-md">
                                 <Bot className="w-5 h-5" /> Ask AI Analyst
                             </button>
