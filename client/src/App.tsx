@@ -12,24 +12,79 @@ import PredictiveReports from "@/pages/PredictiveReports";
 import Integrations from "@/pages/Integrations";
 import AiAnalytics from "@/pages/AiAnalytics";
 import Landing from "@/pages/Landing";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import RoleSelector from "@/pages/RoleSelector";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useOpsPulseLive } from "@/hooks/useOpsPulseLive";
 import { useOpsPulseSounds } from "@/hooks/useOpsPulseSounds";
+import { ROLE_ALLOWED_PATHS, type OpsMode, type UserRole } from "@/types/roles";
+
+const AUTH_KEY = "opspulse-authenticated";
+const USER_ROLE_KEY = "opspulse-user-role";
 
 function AppContent() {
-  const [location] = useLocation();
-  const [role, setRole] = useState<"Strategic" | "Tactical">("Strategic");
+  const [location, setLocation] = useLocation();
+  const [role, setRole] = useState<OpsMode>("Strategic");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.localStorage.getItem(AUTH_KEY) === "true";
+  });
+  const [userRole, setUserRole] = useState<UserRole | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const storedRole = window.localStorage.getItem(USER_ROLE_KEY);
+    return (storedRole as UserRole | null) ?? null;
+  });
   const { state, normalized, loading, connected, updateRole } = useOpsPulseLive();
   const [isWarRoom, setIsWarRoom] = useState(false);
   const [simulationValue, setSimulationValue] = useState(1);
   const { playWarRoom } = useOpsPulseSounds();
 
-  if (location === "/") {
-    return <Landing />;
-  }
+  const allowedPaths = userRole ? ROLE_ALLOWED_PATHS[userRole] : [];
+
+  useEffect(() => {
+    window.localStorage.setItem(AUTH_KEY, String(isAuthenticated));
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (userRole) {
+      window.localStorage.setItem(USER_ROLE_KEY, userRole);
+    } else {
+      window.localStorage.removeItem(USER_ROLE_KEY);
+    }
+  }, [userRole]);
+
+  useEffect(() => {
+    const publicRoutes = ["/", "/signin", "/signup"];
+
+    if (!isAuthenticated) {
+      if (!publicRoutes.includes(location)) {
+        setLocation("/signin");
+      }
+      return;
+    }
+
+    if (!userRole && location !== "/role-selector") {
+      setLocation("/role-selector");
+      return;
+    }
+
+    if (isAuthenticated && ["/signin", "/signup"].includes(location)) {
+      setLocation(userRole ? "/dashboard" : "/role-selector");
+      return;
+    }
+
+    if (userRole && location !== "/role-selector" && !allowedPaths.includes(location)) {
+      setLocation("/dashboard");
+    }
+  }, [allowedPaths, isAuthenticated, location, setLocation, userRole]);
 
   useEffect(() => {
     if (normalized) {
@@ -87,9 +142,57 @@ function AppContent() {
 
   const events = normalized?.events ?? [];
 
+  const handleSignIn = (_payload: { email: string; password: string }) => {
+    setIsAuthenticated(true);
+    setLocation(userRole ? "/dashboard" : "/role-selector");
+  };
+
+  const handleSignUp = (_payload: { fullName: string; email: string; password: string }) => {
+    setIsAuthenticated(true);
+    setUserRole(null);
+    setLocation("/role-selector");
+  };
+
+  if (location === "/") {
+    return <Landing />;
+  }
+
+  if (location === "/signin") {
+    return <SignIn onSubmit={handleSignIn} />;
+  }
+
+  if (location === "/signup") {
+    return <SignUp onSubmit={handleSignUp} />;
+  }
+
+  if (location === "/role-selector") {
+    return (
+      <RoleSelector
+        value={userRole}
+        onChange={setUserRole}
+        onContinue={() => {
+          if (userRole) {
+            setLocation("/dashboard");
+          }
+        }}
+      />
+    );
+  }
+
+  if (!isAuthenticated || !userRole) {
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen bg-[#0a0a0c] text-foreground">
-      <Sidebar isWarRoom={isWarRoom} simValue={simulationValue} setSimValue={setSimulationValue} />
+      <Sidebar
+        isWarRoom={isWarRoom}
+        simValue={simulationValue}
+        setSimValue={setSimulationValue}
+        userRole={userRole}
+        setUserRole={setUserRole}
+        onOpenRoleSetup={() => setLocation("/role-selector")}
+      />
       <div className="flex-1 flex flex-col min-w-0">
         <Header
           role={role}
@@ -106,27 +209,41 @@ function AppContent() {
             </div>
           )}
           <Switch>
-            <Route path="/dashboard">
-              <Home role={role} data={data} events={events} isWarRoom={isWarRoom} rawState={state} />
-            </Route>
-            <Route path="/sales">
-              <SalesModule isWarRoom={isWarRoom} rawState={state} />
-            </Route>
-            <Route path="/inventory">
-              <InventoryModule isWarRoom={isWarRoom} rawState={state} />
-            </Route>
-            <Route path="/support">
-              <SupportModule isWarRoom={isWarRoom} rawState={state} />
-            </Route>
-            <Route path="/reports">
-              <PredictiveReports isWarRoom={isWarRoom} rawState={state} role={role} />
-            </Route>
-            <Route path="/integrations">
-              <Integrations />
-            </Route>
-            <Route path="/ai-analytics">
-              <AiAnalytics isWarRoom={isWarRoom} rawState={state} data={data} />
-            </Route>
+            {allowedPaths.includes("/dashboard") && (
+              <Route path="/dashboard">
+                <Home role={role} userRole={userRole} data={data} events={events} isWarRoom={isWarRoom} rawState={state} />
+              </Route>
+            )}
+            {allowedPaths.includes("/sales") && (
+              <Route path="/sales">
+                <SalesModule isWarRoom={isWarRoom} rawState={state} />
+              </Route>
+            )}
+            {allowedPaths.includes("/inventory") && (
+              <Route path="/inventory">
+                <InventoryModule isWarRoom={isWarRoom} rawState={state} />
+              </Route>
+            )}
+            {allowedPaths.includes("/support") && (
+              <Route path="/support">
+                <SupportModule isWarRoom={isWarRoom} rawState={state} />
+              </Route>
+            )}
+            {allowedPaths.includes("/reports") && (
+              <Route path="/reports">
+                <PredictiveReports isWarRoom={isWarRoom} rawState={state} role={role} />
+              </Route>
+            )}
+            {allowedPaths.includes("/integrations") && (
+              <Route path="/integrations">
+                <Integrations />
+              </Route>
+            )}
+            {allowedPaths.includes("/ai-analytics") && (
+              <Route path="/ai-analytics">
+                <AiAnalytics isWarRoom={isWarRoom} rawState={state} data={data} />
+              </Route>
+            )}
             <Route component={NotFound} />
           </Switch>
         </main>
