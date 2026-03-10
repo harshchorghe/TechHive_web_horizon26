@@ -62,9 +62,9 @@ export default function RootCauseFeed({ events, isWarRoom }: any) {
                             <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest italic">Chain Reaction Detected</div>
                             <div className="space-y-3">
                               {[
-                                { label: "Shipment WH-B Delay", status: "Origin" },
-                                { label: "SKU-402 Stockout Risk", status: "Impact" },
-                                { label: "Revenue Projection -14%", status: "Financial" }
+                                { label: event.title || "Cross-silo trigger", status: "Origin" },
+                                { label: event.impact || "Operational impact detected", status: "Impact" },
+                                { label: event.recommendedAction || "Action required", status: "Action" }
                               ].map((step, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
                                   <div className="w-1 h-1 rounded-full bg-red-500/40" />

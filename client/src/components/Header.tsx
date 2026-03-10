@@ -3,7 +3,7 @@ import { Search, Command, Zap, CheckCircle2, Info } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export default function Header({ role, setRole, stressScore, isWarRoom, setIsWarRoom }: any) {
+export default function Header({ role, setRole, stressScore, isWarRoom, setIsWarRoom, connected }: any) {
   const isHighStress = stressScore > 75;
   const stressColor = isHighStress ? "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" : stressScore > 50 ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" : "text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]";
   
@@ -25,8 +25,10 @@ export default function Header({ role, setRole, stressScore, isWarRoom, setIsWar
         </div>
 
         <div className="flex items-center gap-3">
-          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em]">All Systems Synced</span>
+          <CheckCircle2 className={`w-4 h-4 ${connected ? 'text-emerald-500' : 'text-amber-500'}`} />
+          <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${connected ? 'text-emerald-500' : 'text-amber-500'}`}>
+            {connected ? 'Live Stream Active' : 'Reconnecting Stream'}
+          </span>
         </div>
       </div>
 

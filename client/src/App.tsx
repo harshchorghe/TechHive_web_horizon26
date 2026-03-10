@@ -10,53 +10,23 @@ import InventoryModule from "@/pages/InventoryModule";
 import SupportModule from "@/pages/SupportModule";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import { useState, useEffect } from "react";
-
-const generateMockData = () => {
-  const stress = Math.floor(Math.random() * 40) + 40; 
-  return {
-    stressScore: stress,
-    runwayDays: 120 + Math.floor(Math.random() * 10 - 5),
-    netMargin: 24.5 + (Math.random() * 1 - 0.5),
-    customerLTV: 1240 + Math.floor(Math.random() * 50 - 25),
-    skuMovement: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
-    supportWait: Math.floor(Math.random() * 10) + 2,
-    logisticsStatus: Math.random() > 0.85 ? 'Delayed' : 'On-Time',
-    chartData: Array.from({ length: 30 }, (_, i) => ({
-      time: `T-${30-i}`,
-      health: 80 + Math.random() * 15 - 7.5,
-      predicted: i > 20 ? 75 - (i-20)*6 : null
-    })),
-    events: [
-      { 
-        id: Math.random().toString(36).substring(7), 
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}), 
-        type: Math.random() > 0.7 ? 'crisis' : Math.random() > 0.4 ? 'opportunity' : 'anomaly', 
-        message: `System Event: ${['Load Spiked', 'Route Adjusted', 'Cart Abandoned', 'Conversion Peak'][Math.floor(Math.random()*4)]}` 
-      }
-    ]
-  };
-};
+import { useEffect, useMemo, useState } from "react";
+import { useOpsPulseLive } from "@/hooks/useOpsPulseLive";
 
 function AppContent() {
   const [role, setRole] = useState<"Strategic" | "Tactical">("Strategic");
+  const { state, normalized, loading, connected, updateRole } = useOpsPulseLive();
   const [isWarRoom, setIsWarRoom] = useState(false);
-  const [data, setData] = useState(generateMockData());
-  const [events, setEvents] = useState(data.events);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setData(prev => {
-        const newData = generateMockData();
-        setEvents(e => [newData.events[0], ...e].slice(0, 15));
-        return {
-          ...newData,
-          stressScore: isWarRoom ? Math.floor(Math.random() * 10) + 85 : newData.stressScore
-        };
-      });
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [isWarRoom]);
+    if (normalized) {
+      setIsWarRoom(normalized.isWarRoom);
+    }
+  }, [normalized]);
+
+  useEffect(() => {
+    void updateRole(role);
+  }, [role, updateRole]);
 
   useEffect(() => {
     if (isWarRoom) {
@@ -66,6 +36,24 @@ function AppContent() {
     }
   }, [isWarRoom]);
 
+  const data = useMemo(() => {
+    if (!normalized) {
+      return {
+        stressScore: 0,
+        runwayDays: 0,
+        netMargin: 0,
+        customerLTV: 0,
+        skuMovement: [],
+        supportWait: 0,
+        logisticsStatus: "On-Time",
+        chartData: [],
+      };
+    }
+    return normalized;
+  }, [normalized]);
+
+  const events = normalized?.events ?? [];
+
   return (
     <div className="flex min-h-screen bg-[#0a0a0c] text-foreground">
       <Sidebar isWarRoom={isWarRoom} />
@@ -73,23 +61,29 @@ function AppContent() {
         <Header 
           role={role} 
           setRole={setRole} 
-          stressScore={data.stressScore} 
+          stressScore={data.stressScore}
           isWarRoom={isWarRoom} 
-          setIsWarRoom={setIsWarRoom} 
+          setIsWarRoom={setIsWarRoom}
+          connected={connected}
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
+          {loading && (
+            <div className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/60">
+              Connecting to OpsPulse backend stream...
+            </div>
+          )}
           <Switch>
             <Route path="/">
-              <Home role={role} data={data} events={events} isWarRoom={isWarRoom} />
+              <Home role={role} data={data} events={events} isWarRoom={isWarRoom} rawState={state} />
             </Route>
             <Route path="/sales">
-              <SalesModule isWarRoom={isWarRoom} />
+              <SalesModule isWarRoom={isWarRoom} rawState={state} />
             </Route>
             <Route path="/inventory">
-              <InventoryModule isWarRoom={isWarRoom} />
+              <InventoryModule isWarRoom={isWarRoom} rawState={state} />
             </Route>
             <Route path="/support">
-              <SupportModule isWarRoom={isWarRoom} />
+              <SupportModule isWarRoom={isWarRoom} rawState={state} />
             </Route>
             <Route component={NotFound} />
           </Switch>

@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { Package, Truck, AlertCircle, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 
-export default function InventoryModule({ isWarRoom }: any) {
+export default function InventoryModule({ isWarRoom, rawState }: any) {
+  const skus = rawState?.inventory?.skus ?? [];
+  const shipments = rawState?.inventory?.incoming_shipments ?? [];
+
   return (
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -23,11 +26,11 @@ export default function InventoryModule({ isWarRoom }: any) {
             </div>
           </div>
           <div className="grid grid-cols-8 md:grid-cols-12 gap-2">
-            {Array.from({ length: 96 }).map((_, i) => {
-              const status = Math.random();
+            {skus.map((sku: any, i: number) => {
+              const status = sku.stock / Math.max(1, sku.reorder_point * 2);
               const color = status > 0.8 ? 'bg-emerald-500/40 border-emerald-500/50' : status > 0.4 ? 'bg-amber-500/40 border-amber-500/50' : 'bg-red-500/40 border-red-500/50';
               return (
-                <Tooltip key={i} text={`SKU-8${i} Status: ${status > 0.4 ? 'Optimal' : 'CRITICAL'}`}>
+                <Tooltip key={sku.sku} text={`${sku.sku} (${sku.warehouse}): ${status > 0.4 ? 'Optimal' : 'CRITICAL'}`}>
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -48,21 +51,20 @@ export default function InventoryModule({ isWarRoom }: any) {
               Incoming Shipments
             </h2>
             <div className="space-y-6">
-              {[
-                { id: "LOG-928", status: "In Transit", eta: "4h 20m", item: "SKU-402 (200 units)", color: "text-primary" },
-                { id: "LOG-929", status: "Delayed", eta: "48h", item: "SKU-108 (500 units)", color: "text-red-400" },
-                { id: "LOG-930", status: "Processing", eta: "72h", item: "SKU-205 (1000 units)", color: "text-white/40" },
-              ].map((shipment, i) => (
-                <div key={i} className="relative pl-6 border-l border-white/5">
-                  <div className={`absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-current ${shipment.color}`} />
+              {shipments.map((shipment: any) => {
+                const color = shipment.status === "Delayed" ? "text-red-400" : shipment.status === "In Transit" ? "text-primary" : "text-white/40";
+
+                return (
+                <div key={shipment.id} className="relative pl-6 border-l border-white/5">
+                  <div className={`absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-current ${color}`} />
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">{shipment.id}</span>
-                    <span className={`terminal-text text-xs font-bold ${shipment.color}`}>{shipment.eta}</span>
+                    <span className={`terminal-text text-xs font-bold ${color}`}>{shipment.eta}</span>
                   </div>
                   <div className="text-xs font-bold mb-1">{shipment.item}</div>
                   <div className="text-[10px] text-white/40 uppercase font-bold">{shipment.status}</div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </div>

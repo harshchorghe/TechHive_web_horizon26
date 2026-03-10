@@ -1,7 +1,14 @@
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from "recharts";
 import { Zap } from "lucide-react";
+import { useMemo, useState } from "react";
 
-export default function PredictiveStressEngine({ data, isWarRoom }: any) {
+export default function PredictiveStressEngine({ data, isWarRoom, predictions }: any) {
+  const [horizon, setHorizon] = useState(12);
+  const selected = useMemo(
+    () => predictions?.find((p: any) => p.horizon_hours === horizon),
+    [predictions, horizon],
+  );
+
   return (
     <div className={`glass-panel p-6 rounded-2xl flex-1 min-h-[450px] flex flex-col relative overflow-hidden transition-colors duration-1000 ${isWarRoom ? 'border-red-500/30 bg-red-950/20 shadow-[0_0_50px_rgba(239,68,68,0.05)]' : ''}`}>
       {isWarRoom && (
@@ -23,6 +30,27 @@ export default function PredictiveStressEngine({ data, isWarRoom }: any) {
             <span className="text-xs terminal-text font-bold animate-pulse">CATASTROPHIC DIVERGENCE DETECTED</span>
           </div>
         )}
+      </div>
+
+      <div className="mb-6 flex items-center justify-between gap-4 relative z-10">
+        <div className="flex items-center gap-2">
+          {[6, 12, 24].map((h) => (
+            <button
+              key={h}
+              onClick={() => setHorizon(h)}
+              className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border transition-colors ${
+                horizon === h
+                  ? "border-primary/60 bg-primary/20 text-primary"
+                  : "border-white/10 bg-white/5 text-white/50 hover:text-white/80"
+              }`}
+            >
+              +{h}h
+            </button>
+          ))}
+        </div>
+        <div className="text-xs text-white/60 max-w-xl text-right">
+          {selected?.explanation || "Forecast calibrating from live velocity signals."}
+        </div>
       </div>
 
       <div className="flex-1 relative z-10 -ml-4">

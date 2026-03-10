@@ -1,18 +1,18 @@
 import { motion } from "framer-motion";
-import { TrendingUp, ShoppingCart, DollarSign, ArrowUpRight, BarChart2 } from "lucide-react";
+import { TrendingUp, ShoppingCart, DollarSign, BarChart2 } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-const data = [
-  { name: 'Mon', sales: 4000, refunds: 240, growth: 12 },
-  { name: 'Tue', sales: 3000, refunds: 139, growth: 8 },
-  { name: 'Wed', sales: 2000, refunds: 980, growth: -5 },
-  { name: 'Thu', sales: 2780, refunds: 390, growth: 15 },
-  { name: 'Fri', sales: 1890, refunds: 480, growth: 10 },
-  { name: 'Sat', sales: 2390, refunds: 380, growth: 18 },
-  { name: 'Sun', sales: 3490, refunds: 430, growth: 22 },
-];
+export default function SalesModule({ isWarRoom, rawState }: any) {
+  const sales = rawState?.sales;
+  const support = rawState?.support;
+  const chartSeries = (rawState?.chart_data ?? []).slice(-12).map((d: any) => ({
+    name: d.time,
+    sales: Math.round((sales?.revenue_per_hour ?? 0) * (d.health / 100)),
+  }));
+  const topSkus = [...(rawState?.inventory?.skus ?? [])]
+    .sort((a: any, b: any) => b.velocity_per_hour - a.velocity_per_hour)
+    .slice(0, 5);
 
-export default function SalesModule({ isWarRoom }: any) {
   return (
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -23,10 +23,10 @@ export default function SalesModule({ isWarRoom }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <SalesStat title="Daily Volume" value="$42,842" trend="+12.4%" icon={<TrendingUp />} />
-        <SalesStat title="Conversion" value="4.82%" trend="+0.4%" icon={<ShoppingCart />} />
-        <SalesStat title="Refund Rate" value="1.2%" trend="-0.2%" icon={<BarChart2 />} isGood={true} />
-        <SalesStat title="Avg Ticket" value="$142.00" trend="+$4.20" icon={<DollarSign />} />
+        <SalesStat title="Hourly Revenue" value={`$${Math.round(sales?.revenue_per_hour ?? 0)}`} trend={`${rawState?.stress_score ?? 0} stress`} icon={<TrendingUp />} />
+        <SalesStat title="Conversion" value={`${(sales?.conversion_rate ?? 0).toFixed(2)}%`} trend={`${sales?.orders_per_hour ?? 0} orders/h`} icon={<ShoppingCart />} />
+        <SalesStat title="Refund Rate" value={`${(sales?.refund_rate ?? 0).toFixed(2)}%`} trend={`${support?.ticket_volume_per_hour ?? 0} tickets/h`} icon={<BarChart2 />} isGood={true} />
+        <SalesStat title="Avg Ticket" value={`$${(sales?.avg_order_value ?? 0).toFixed(2)}`} trend={`$${Math.round(sales?.cash_reserve ?? 0)} cash`} icon={<DollarSign />} />
       </div>
 
       <div className="grid grid-cols-12 gap-6">
@@ -46,7 +46,7 @@ export default function SalesModule({ isWarRoom }: any) {
           </div>
           <div className="flex-1 -ml-4">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={chartSeries}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -69,23 +69,17 @@ export default function SalesModule({ isWarRoom }: any) {
           <div className="glass-panel p-6 rounded-3xl flex-1">
             <h2 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Top 5 Revenue SKUs</h2>
             <div className="space-y-4">
-              {[
-                { name: "Pro Headset X1", rev: "$24,200", velocity: 94 },
-                { name: "Obsidian Mouse", rev: "$18,400", velocity: 82 },
-                { name: "Mechanical K1", rev: "$12,100", velocity: 64 },
-                { name: "Tactical Pad", rev: "$8,900", velocity: 45 },
-                { name: "Custom Cable", rev: "$4,200", velocity: 32 },
-              ].map((sku, i) => (
-                <div key={i} className="flex flex-col gap-2">
+              {topSkus.map((sku: any) => (
+                <div key={sku.sku} className="flex flex-col gap-2">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-white/80">{sku.name}</span>
-                    <span className="terminal-text text-primary">{sku.rev}</span>
+                    <span className="text-white/80">{sku.sku}</span>
+                    <span className="terminal-text text-primary">{Math.round(sku.velocity_per_hour)} u/h</span>
                   </div>
                   <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                     <motion.div 
                       className="h-full bg-primary/40"
                       initial={{ width: 0 }}
-                      animate={{ width: `${sku.velocity}%` }}
+                      animate={{ width: `${Math.min(100, Math.round((sku.stock / Math.max(1, sku.reorder_point * 2)) * 100))}%` }}
                     />
                   </div>
                 </div>

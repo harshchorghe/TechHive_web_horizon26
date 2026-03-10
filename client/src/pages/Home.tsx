@@ -5,7 +5,9 @@ import RootCauseFeed from "@/components/RootCauseFeed";
 import DecisionRecommendation from "@/components/DecisionRecommendation";
 import { AlertTriangle, Sparkles } from "lucide-react";
 
-export default function Home({ role, data, events, isWarRoom }: any) {
+export default function Home({ role, data, events, isWarRoom, rawState }: any) {
+  const topRisk = rawState?.alerts?.[0];
+
   return (
     <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
       {/* Executive Briefing */}
@@ -24,7 +26,9 @@ export default function Home({ role, data, events, isWarRoom }: any) {
               <h2 className="text-lg font-bold tracking-tight">Executive Briefing</h2>
               <p className="text-sm text-white/60 leading-relaxed max-w-3xl mt-1">
                 Welcome back. System stress is <span className="text-white font-mono">{data.stressScore}/100</span>. 
-                Sales velocity is up <span className="text-emerald-400 font-mono">+12%</span>, but a delay at Warehouse B is threatening SKU-402 availability in <span className="text-amber-400 font-mono">48 hours</span>.
+                Revenue velocity is <span className="text-emerald-400 font-mono">${rawState?.sales?.revenue_per_hour?.toFixed?.(0) ?? 0}/h</span>, and
+                runway is <span className="text-amber-400 font-mono">{data.runwayDays} days</span>.
+                {topRisk ? ` Top priority: ${topRisk.title.toLowerCase()}.` : ""}
               </p>
             </div>
           </div>
@@ -37,7 +41,7 @@ export default function Home({ role, data, events, isWarRoom }: any) {
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
           <PulseDashboard role={role} data={data} isWarRoom={isWarRoom} />
-          <PredictiveStressEngine data={data.chartData} isWarRoom={isWarRoom} />
+          <PredictiveStressEngine data={data.chartData} isWarRoom={isWarRoom} predictions={rawState?.predictions ?? []} />
         </div>
 
         <div className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
@@ -45,7 +49,7 @@ export default function Home({ role, data, events, isWarRoom }: any) {
         </div>
       </div>
 
-      {isWarRoom && <DecisionRecommendation data={data} />}
+      {isWarRoom && <DecisionRecommendation data={data} playbooks={rawState?.recommendations?.playbooks ?? []} />}
     </div>
   );
 }

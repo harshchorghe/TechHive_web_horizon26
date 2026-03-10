@@ -1,7 +1,29 @@
 import { motion } from "framer-motion";
-import { AlertOctagon, ArrowRight, Zap, CheckCircle2, XCircle } from "lucide-react";
+import { AlertOctagon, CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
 
-export default function DecisionRecommendation({ data }: any) {
+const API_BASE = import.meta.env.VITE_OPSPULSE_API_BASE || "http://localhost:8000";
+
+export default function DecisionRecommendation({ playbooks }: any) {
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  const approve = async (id: string) => {
+    setApprovingId(id);
+    try {
+      await fetch(`${API_BASE}/api/v1/playbooks/${id}/approve`, { method: "POST" });
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  const activePlaybooks = playbooks.length
+    ? playbooks
+    : [
+        { id: "fallback-1", title: "Stockout Shield", risk: "Revenue leakage risk", action: "Restock now" },
+        { id: "fallback-2", title: "Logistics Recovery", risk: "Late fulfillment", action: "Reroute warehouse" },
+        { id: "fallback-3", title: "Support Burst", risk: "Sentiment decline", action: "Shift agents" },
+      ];
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 100, scale: 0.9 }}
@@ -20,7 +42,7 @@ export default function DecisionRecommendation({ data }: any) {
               </div>
               <div>
                 <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Emergency Decision Matrix</h2>
-                <p className="text-red-400/60 text-xs font-bold uppercase tracking-widest mt-1">3 Critical Issues Requiring Immediate Authorization</p>
+                <p className="text-red-400/60 text-xs font-bold uppercase tracking-widest mt-1">Critical Issues Requiring Immediate Authorization</p>
               </div>
             </div>
             <div className="text-right">
@@ -30,24 +52,26 @@ export default function DecisionRecommendation({ data }: any) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { title: "Stockout: SKU-402", risk: "$42k Rev Leak", action: "Air Freight" },
-              { title: "Logistics: WH-B Block", risk: "240 Late Orders", action: "Reroute WH-C" },
-              { title: "Support: Spike +400%", risk: "LTV Degradation", action: "Hire Burst" }
-            ].map((issue, i) => (
-              <div key={i} className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 flex flex-col gap-4">
+            {activePlaybooks.map((issue: any) => (
+              <div key={issue.id} className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 flex flex-col gap-4">
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">{issue.title}</h3>
                   <div className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Risk: {issue.risk}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button className="flex flex-col items-center justify-center py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all group">
+                  <button
+                    disabled={approvingId === issue.id}
+                    onClick={() => approve(issue.id)}
+                    className="flex flex-col items-center justify-center py-3 bg-red-600 hover:bg-red-500 disabled:bg-red-900/50 text-white rounded-xl transition-all group"
+                  >
                     <CheckCircle2 className="w-4 h-4 mb-1" />
-                    <span className="text-[10px] font-bold uppercase">Approve</span>
+                    <span className="text-[10px] font-bold uppercase">
+                      {approvingId === issue.id ? "Approving..." : "Approve"}
+                    </span>
                   </button>
                   <button className="flex flex-col items-center justify-center py-3 bg-white/5 hover:bg-white/10 text-white/40 rounded-xl transition-all group">
                     <XCircle className="w-4 h-4 mb-1" />
-                    <span className="text-[10px] font-bold uppercase">Ignore</span>
+                    <span className="text-[10px] font-bold uppercase">{issue.action || "Ignore"}</span>
                   </button>
                 </div>
               </div>
